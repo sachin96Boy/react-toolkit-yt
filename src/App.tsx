@@ -1,7 +1,12 @@
+import { Container } from "@chakra-ui/react";
+import PostList from "./features/posts/PostList";
+
 function App() {
   return (
     <>
-      <p>Hello world</p>
+      <Container>
+        <PostList />
+      </Container>
     </>
   );
 }
