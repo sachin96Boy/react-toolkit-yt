@@ -1,7 +1,12 @@
+import { Center } from "@chakra-ui/react";
+import Counter from "./features/counter/Counter";
+
 function App() {
   return (
     <>
-      <p>Hello world</p>
+      <Center>
+        <Counter />
+      </Center>
     </>
   );
 }
