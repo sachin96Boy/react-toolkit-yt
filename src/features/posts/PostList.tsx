@@ -11,6 +11,7 @@ function PostList() {
       id={post.id}
       title={post.title}
       content={post.content}
+      userId={post.userId}
     />
   ));
 

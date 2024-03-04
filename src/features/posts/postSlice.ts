@@ -5,23 +5,27 @@ type PostState = {
     id: string;
     title: string;
     content: string;
+    userId: string;
 }
 
 const initialState: PostState[] = [
     {
         id: '1',
         title: 'learn RTK',
-        content: 'Good to learn RTK'
+        content: 'Good to learn RTK',
+        userId: '1'
     },
     {
         id: '2',
         title: 'learn slies',
-        content: 'Good to learn slices in rtk'
+        content: 'Good to learn slices in rtk',
+        userId: '2'
     },
     {
         id: '3',
         title: 'learn  new slies',
-        content: 'Good to learn slices in rtk 2'
+        content: 'Good to learn slices in rtk 2',
+        userId: '1'
     },
 ]
 
@@ -33,12 +37,13 @@ const postSlice = createSlice({
             reducer: (state, action: PayloadAction<PostState>) => {
                 state.push(action.payload);
             },
-            prepare: (title: string, content: string) => {
+            prepare: (title: string, content: string, userId: string) => {
                 return {
                     payload: {
                         id: nanoid(),
                         title,
-                        content
+                        content,
+                        userId,
                     }
                 }
             }

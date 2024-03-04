@@ -6,14 +6,16 @@ import {
   FormLabel,
   Heading,
   Input,
+  Select,
   Textarea,
 } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { postAdded } from "../features/posts/postSlice";
 import { useEffect } from "react";
+import { selectAllUsers } from "../features/users/usersSlice";
 
 const PostFormSchema = z.object({
   title: z
@@ -30,12 +32,20 @@ const PostFormSchema = z.object({
     })
     .trim()
     .min(1),
+  userId: z
+    .string({
+      required_error: "userId is required",
+    })
+    .trim()
+    .min(1),
 });
 
 type PostFormSchemaType = z.infer<typeof PostFormSchema>;
 
 function AddForm() {
   const dispatch = useDispatch();
+
+  const users = useSelector(selectAllUsers);
 
   const {
     register,
@@ -49,11 +59,17 @@ function AddForm() {
   // handle form submit
   const postSubmitHandler: SubmitHandler<PostFormSchemaType> = (data) => {
     try {
-      dispatch(postAdded(data.title, data.content));
+      dispatch(postAdded(data.title, data.content, data.userId));
     } catch (err) {
       console.log(err);
     }
   };
+
+  const userOptions = users.map((user, index) => (
+    <option key={index} value={user.id}>
+      {user.name}
+    </option>
+  ));
 
   useEffect(() => {
     if (isSubmitSuccessful) {
@@ -64,14 +80,14 @@ function AddForm() {
     <Container>
       <Heading>Add a new Post</Heading>
       <form onSubmit={handleSubmit(postSubmitHandler)}>
-        <FormControl isInvalid={errors.title && touchedFields.title}>
+        <FormControl isInvalid={errors.title && !touchedFields.title}>
           <FormLabel htmlFor="title">Post Title</FormLabel>
           <Input id="title" placeholder="Post title" {...register("title")} />
           <FormErrorMessage>
             {errors.title && errors.title.message}
           </FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={errors.content && touchedFields.content}>
+        <FormControl isInvalid={errors.content && !touchedFields.content}>
           <FormLabel htmlFor="content">Post Content</FormLabel>
           <Textarea
             id="content"
@@ -80,6 +96,16 @@ function AddForm() {
           />
           <FormErrorMessage>
             {errors.content && errors.content.message}
+          </FormErrorMessage>
+        </FormControl>
+        <FormControl isInvalid={errors.userId && !touchedFields.userId}>
+          <FormLabel htmlFor="userId">Select user</FormLabel>
+          <Select id="userId" {...register("userId")}>
+            <option value={""}></option>
+            {userOptions}
+          </Select>
+          <FormErrorMessage>
+            {errors.userId && errors.userId.message}
           </FormErrorMessage>
         </FormControl>
         <Button mt={4} isLoading={isSubmitting} type="submit" color={"teal"}>
