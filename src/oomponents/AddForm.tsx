@@ -13,19 +13,23 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch } from "react-redux";
 import { postAdded } from "../features/posts/postSlice";
-import { nanoid } from "@reduxjs/toolkit";
+import { useEffect } from "react";
 
 const PostFormSchema = z.object({
   title: z
     .string({
       required_error: "Title is Required",
-    }).trim()
+    })
+    .trim()
     .min(3)
     .max(20),
-  content: z.string({
-    required_error: "Content is required",
-    invalid_type_error: "Invalid type error"
-  }).trim().min(1),
+  content: z
+    .string({
+      required_error: "Content is required",
+      invalid_type_error: "Invalid type error",
+    })
+    .trim()
+    .min(1),
 });
 
 type PostFormSchemaType = z.infer<typeof PostFormSchema>;
@@ -36,7 +40,8 @@ function AddForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, touchedFields },
+    reset,
+    formState: { errors, isSubmitting, touchedFields, isSubmitSuccessful },
   } = useForm<PostFormSchemaType>({
     resolver: zodResolver(PostFormSchema),
   });
@@ -44,18 +49,17 @@ function AddForm() {
   // handle form submit
   const postSubmitHandler: SubmitHandler<PostFormSchemaType> = (data) => {
     try {
-      console.log(data);
-      dispatch(
-        postAdded({
-          id: nanoid(),
-          title: data.title,
-          content: data.content,
-        })
-      );
+      dispatch(postAdded(data.title, data.content));
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset();
+    }
+  }, [isSubmitSuccessful, reset]);
   return (
     <Container>
       <Heading>Add a new Post</Heading>
