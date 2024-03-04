@@ -1,6 +1,11 @@
 import { PayloadAction, createSlice, nanoid } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
+type PostObjectState = {
+    posts: PostState[],
+    status: 'idle' | 'loading' | 'success' | 'failure',
+    error: null
+}
 type PostState = {
     id: string;
     title: string;
@@ -8,26 +13,11 @@ type PostState = {
     userId: string;
 }
 
-const initialState: PostState[] = [
-    {
-        id: '1',
-        title: 'learn RTK',
-        content: 'Good to learn RTK',
-        userId: '1'
-    },
-    {
-        id: '2',
-        title: 'learn slies',
-        content: 'Good to learn slices in rtk',
-        userId: '2'
-    },
-    {
-        id: '3',
-        title: 'learn  new slies',
-        content: 'Good to learn slices in rtk 2',
-        userId: '1'
-    },
-]
+const initialState: PostObjectState = {
+    posts: [],
+    status: 'idle',
+    error: null
+}
 
 const postSlice = createSlice({
     name: 'posts',
@@ -35,7 +25,7 @@ const postSlice = createSlice({
     reducers: {
         postAdded: {
             reducer: (state, action: PayloadAction<PostState>) => {
-                state.push(action.payload);
+                state.posts.push(action.payload);
             },
             prepare: (title: string, content: string, userId: string) => {
                 return {

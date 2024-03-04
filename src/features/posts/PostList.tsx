@@ -5,7 +5,7 @@ import { selectAllPosts } from "./postSlice";
 function PostList() {
   const posts = useSelector(selectAllPosts);
 
-  const renderedPosts = posts.map((post) => (
+  const renderedPosts = posts.posts.map((post) => (
     <BogPost
       key={post.id}
       id={post.id}
