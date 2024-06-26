@@ -13,9 +13,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch, useSelector } from "react-redux";
-import { postAdded } from "../features/posts/postSlice";
-import { useEffect } from "react";
+import { addNewPost, status } from "../features/posts/postSlice";
+import { useEffect, useState } from "react";
 import { selectAllUsers } from "../features/users/usersSlice";
+import { AppDispatch } from "../app/store";
 
 const PostFormSchema = z.object({
   title: z
@@ -43,9 +44,11 @@ const PostFormSchema = z.object({
 type PostFormSchemaType = z.infer<typeof PostFormSchema>;
 
 function AddForm() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const users = useSelector(selectAllUsers);
+
+  const [addRequestState, setAddRequestState] = useState(status.idle);
 
   const {
     register,
@@ -59,9 +62,18 @@ function AddForm() {
   // handle form submit
   const postSubmitHandler: SubmitHandler<PostFormSchemaType> = (data) => {
     try {
-      dispatch(postAdded(data.title, data.content, data.userId));
+      setAddRequestState(status.loading);
+      dispatch(
+        addNewPost({
+          title: data.title,
+          body: data.content,
+          userId: data.userId,
+        })
+      );
     } catch (err) {
       console.log(err);
+    } finally {
+      setAddRequestState(status.idle);
     }
   };
 
@@ -76,6 +88,7 @@ function AddForm() {
       reset();
     }
   }, [isSubmitSuccessful, reset]);
+
   return (
     <Container>
       <Heading>Add a new Post</Heading>
@@ -108,7 +121,12 @@ function AddForm() {
             {errors.userId && errors.userId.message}
           </FormErrorMessage>
         </FormControl>
-        <Button mt={4} isLoading={isSubmitting} type="submit" color={"teal"}>
+        <Button
+          mt={4}
+          isLoading={isSubmitting && addRequestState === status.loading}
+          type="submit"
+          color={"teal"}
+        >
           Add Post
         </Button>
       </form>
